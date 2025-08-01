@@ -36,7 +36,7 @@ spec:
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 5
-            timeoutSeconds: 10
+            timeoutSeconds: 30
             periodSeconds: 30
             successThreshold: 1
             failureThreshold: 3
@@ -47,7 +47,7 @@ spec:
               path: /RNACargaValidadorMS/actuator/health
               port: 8080
               scheme: HTTP
-            timeoutSeconds: 10
+            timeoutSeconds: 30
             periodSeconds: 30
             successThreshold: 1
             failureThreshold: 3
