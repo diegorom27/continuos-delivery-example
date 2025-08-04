@@ -10,7 +10,7 @@ spec:
         description: "Tag apuntando a la última versión de la imagen 1"
       from:
         kind: DockerImage
-        name: azspkprdcre1000.azurecr.io/rna-carga-validador-ms:1.0.105
+        name: azspkprdcre1000.azurecr.io/rna-carga-validador-ms:1.0.104
       importPolicy:
         scheduled: true
 
