@@ -13,5 +13,3 @@ spec:
         name: azspkprdcre1000.azurecr.io/rna-carga-validador-ms:1.0.104
       importPolicy:
         scheduled: true
-
-        
