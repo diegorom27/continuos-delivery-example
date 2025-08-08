@@ -9,7 +9,6 @@ metadata:
   labels:
     app: rnacargavalidadorms
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: rnacargavalidadorms
