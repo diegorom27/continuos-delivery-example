@@ -28,7 +28,7 @@ spec:
       script: |
         set -e
         echo "Clonando $(params.repository) en rama $(params.revision)"
-        git clone -b $(params.revision) $(params.repository) .
+        git clone -b $(params.revision) $(params.repository) /workspace/source/manifiestos
     - name: apply-manifests
       image: icr.io/continuous-delivery/pipeline/pipeline-base-image
       env:
