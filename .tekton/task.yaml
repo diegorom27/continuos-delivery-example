@@ -1,0 +1,48 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: apply-manifests-task
+spec:
+  params:
+    - name: repository
+      description: URL del repositorio Git con los manifiestos
+    - name: revision
+      description: Rama o tag del repositorio
+      default: main
+    - name: apikey
+      description: IBM Cloud API Key
+    - name: cluster
+      description: Nombre o ID del cluster Satellite
+    - name: clusterRegion
+      description: Región del cluster Satellite
+      default: us-south
+    - name: manifestPath
+      description: Ruta en el repo donde están los manifiestos
+      default: .
+  workspaces:
+    - name: task-pvc
+      mountPath: /workspace
+  steps:
+    - name: clone-repo
+      image: alpine/git
+      script: |
+        set -e
+        echo "Clonando $(params.repository) en rama $(params.revision)"
+        git clone -b $(params.revision) $(params.repository) .
+    - name: apply-manifests
+      image: icr.io/continuous-delivery/pipeline/pipeline-base-image
+      env:
+        - name: IBMCLOUD_API_KEY
+          value: $(params.apikey)
+        - name: CLUSTER
+          value: $(params.cluster)
+        - name: REGION
+          value: $(params.clusterRegion)
+        - name: MANIFEST_PATH
+          value: $(params.manifestPath)
+      script: |
+        set -e
+        ibmcloud login -r $REGION
+        ibmcloud ks cluster config --cluster $CLUSTER
+        echo "Aplicando manifiestos desde $MANIFEST_PATH"
+        kubectl apply -f $MANIFEST_PATH

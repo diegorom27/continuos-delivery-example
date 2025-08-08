@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: apply-manifests-template
+spec:
+  params:
+    - name: repository
+      description: URL del repositorio Git con los manifiestos
+    - name: revision
+      description: Rama o tag del repositorio
+      default: main
+    - name: apikey
+      description: IBM Cloud API Key para autenticación
+    - name: cluster
+      description: Nombre o ID del cluster Satellite
+    - name: clusterRegion
+      description: Región del cluster Satellite
+      default: us-south
+    - name: clusterNamespace
+      description: Namespace del cluster donde aplicar
+    - name: manifestPath
+      description: Ruta en el repo donde están los manifiestos (por namespace)
+      default: .
+  resourcetemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: pipelinerun-$(uid)-pvc
+      spec:
+        resources:
+          requests:
+            storage: 5Gi
+        volumeMode: Filesystem
+        accessModes:
+          - ReadWriteOnce
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: apply-manifests-run-$(uid)
+      spec:
+        pipelineRef:
+          name: apply-manifests-pipeline
+        workspaces:
+          - name: pipeline-pvc
+            persistentVolumeClaim:
+              claimName: pipelinerun-$(uid)-pvc
+        params:
+          - name: repository
+            value: $(params.repository)
+          - name: revision
+            value: $(params.revision)
+          - name: apikey
+            value: $(params.apikey)
+          - name: cluster
+            value: $(params.cluster)
+          - name: clusterRegion
+            value: $(params.clusterRegion)
+          - name: clusterNamespace
+            value: $(params.clusterNamespace)
+          - name: manifestPath
+            value: $(params.manifestPath)
+---
+apiVersion: tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: apply-manifests-binding
+spec:
+  params:
+    - name: repository
+      value: "https://github.com/diegorom27/continuos-delivery-example"
+    - name: revision
+      value: "main"
+---
+apiVersion: tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: apply-manifests-listener
+spec:
+  triggers:
+    - binding:
+        name: apply-manifests-binding
+      template:
+        name: apply-manifests-template
